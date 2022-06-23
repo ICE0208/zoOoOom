@@ -16,34 +16,13 @@ const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 
 wsServer.on("connection", (socket) => {
-  console.log(socket);
+  socket.onAny((event) => {
+    console.log(`Socket Event: ${event}`);
+  });
+  socket.on("enter_room", (roomName, done) => {
+    socket.join(roomName);
+    done();
+  });
 });
-
-// const wss = new WebSocket.Server({ server });
-// const sockets = [];
-
-// wss.on("connection", (socket) => {
-//   sockets.push(socket);
-//   socket["nickname"] = "Anon";
-//   console.log("Connected to Browser");
-//   socket.on("message", (msg) => {
-//     const message = JSON.parse(msg);
-//     console.log(message);
-//     switch (message.type) {
-//       case "new_message":
-//         sockets.forEach((aSocket) =>
-//           aSocket.send(`${socket.nickname} : ${message.payload}`)
-//         );
-//         break;
-//       case "nickname":
-//         socket["nickname"] = message.payload;
-//         break;
-//     }
-//   });
-//   socket.on("close", () => {
-//     sockets.pop(socket);
-//     console.log("Disconnected to Browser");
-//   });
-// });
 
 httpServer.listen(3000, handleListen);
