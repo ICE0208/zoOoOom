@@ -1,7 +1,8 @@
 const socket = io(); // 소켓 연결
 
 const welcome = document.getElementById("welcome");
-const form = welcome.querySelector("form");
+const nicknameForm = welcome.querySelector("#name");
+const roomnameForm = welcome.querySelector("#roomname");
 const room = document.getElementById("room");
 
 room.hidden = true;
@@ -17,12 +18,19 @@ function addMessage(message) {
 
 function handleMessageSubmit(event) {
   event.preventDefault();
-  const input = room.querySelector("input");
+  const input = room.querySelector("#msg input");
   const value = input.value;
   socket.emit("new_message", input.value, roomName, () => {
     addMessage(`You: ${value}`);
   });
   input.value = "";
+}
+
+function handleNicknameSubmit(event) {
+  event.preventDefault();
+  const input = welcome.querySelector("#name input");
+  console.log(`name set to ${input.value}`);
+  socket.emit("nickname", input.value);
 }
 
 function showRoom() {
@@ -31,28 +39,29 @@ function showRoom() {
   const h3 = room.querySelector("h3");
   h3.innerText = `Room: ${roomName}`;
   // message submit listener
-  const form = room.querySelector("form");
-  form.addEventListener("submit", handleMessageSubmit);
+  const msgForm = room.querySelector("#msg");
+  msgForm.addEventListener("submit", handleMessageSubmit);
 }
 
 function handleRoomtSubmit(event) {
   event.preventDefault();
-  const input = form.querySelector("input");
+  const input = roomnameForm.querySelector("input");
   socket.emit("enter_room", input.value, showRoom);
   roomName = input.value;
   input.vallue = "";
 }
 
-form.addEventListener("submit", handleRoomtSubmit);
+nicknameForm.addEventListener("submit", handleNicknameSubmit);
+roomnameForm.addEventListener("submit", handleRoomtSubmit);
 
-socket.on("welcome", () => {
-  addMessage("Someone joined!");
+socket.on("welcome", (username) => {
+  addMessage(`${username} joined!`);
 });
 
-socket.on("bye", () => {
-  addMessage("Someone left TT");
+socket.on("bye", (username) => {
+  addMessage(`${username} left TT`);
 });
 
 socket.on("new_message", (msg) => {
-  addMessage(`Anon: ${msg}`);
+  addMessage(`${msg}`);
 });
